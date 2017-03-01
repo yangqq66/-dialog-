@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Examples</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<link href="" rel="stylesheet">
+<style type="text/css">
+	html, body, ol, ul, li, a, div, input, label, form, textarea, span, h1, h2, h3, h4, h5, h6, p {
+		padding: 0;
+		margin: 0;
+		font-weight: normal;
+		box-sizing: border-box
+	}
+	html, body {
+		font-family: "microsoft YaHei", arial;
+		width: 100%;
+		height: auto;
+		overflow-x: hidden
+	}
+	i, article, aside, details, figcaption, figure, footer, header, hgroup, main, nav, section, summary {
+		display: block
+	}
+	ul, ul li {
+		list-style-type: none
+	}
+	a {
+		outline: none;
+		text-decoration: none;
+		color: black
+	}
+	img {
+		outline: none !important;
+		border: none
+	}
+	input, textarea {
+		outline: none;
+		font-family: "microsoft YaHei", arial;
+		font-size: 16px
+	}
+	.btn{
+		padding: 10px 20px;
+		margin: 10px;
+		background: rgba(41, 178, 152, 1.0);
+		border: none;
+		color: white;
+		font-size: 20px;
+		outline: none;
+		border-radius: 6px;
+	}
+	.btn:active{
+		outline: none;
+		background: rgba(41, 178, 152, 0.8);
+	}
+	.dialog-mask{
+		position: fixed;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		background: rgba(0, 0, 0, 0.4);
+		z-index: 999;
+	/* 	display: flex;
+		display: -webkit-flex;
+		display: -moz-flex;
+		display: -ms-flex;
+		-webkit-justify-content: center;
+		-webkit-align-items: center; */
+	}
+	.dialog{
+		background: white;
+		border-radius: 5px;
+		overflow: hidden;
+		-webkit-transform:translate3d(-50%,-50%,0);
+		transform:translate3d(-50%,-50%,0);
+	}
+	.dialog .dialog-header{
+		text-align: center;
+		font-size: 16px;
+		padding: 0.5rem;
+		overflow: auto;
+	}
+	.dialog-content{
+		font-size: 16px;
+		text-align: left;
+		padding:10px;
+	}
+	.dialog-content .prompt-input{
+		width: 100%;
+		border: 1px solid #eaeaea;
+		font-size: 14px;
+		padding: 0.6rem;
+		border-radius: 2px;
+
+	}
+	.dialog-btn-group{
+		display: -webkit-flex;
+		display: -moz-flex;
+		display: -ms-flex;
+		border-top: 1px solid rgba(0, 0, 0, 0.1);
+	}
+	.dialog-btn-group a.link-flex{
+		-moz-flex: 1;
+		-webkit-flex: 1;
+		flex: 1;
+		text-align: center;
+		padding: 1rem;
+		font-size: 14px;
+	}
+	.btn-red {
+		background: #f44336;
+		color: white
+	}
+</style>
+</head>
+<body>
+<button id="alertBtn" class="btn">alertBtn</button>
+<button id="confirmBtn" class="btn">confirmBtn</button>
+<button id="promptBtn" class="btn">promptBtn</button>
+<script type="text/javascript" src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+<script type="text/javascript">
+	$(function(){
+			$("#alertBtn").on("click",function(){
+				$(this).dialog({
+					dialogHeader:true,
+					dialogType:"alert",
+					alertCall:function(){
+		    			alert("点击按钮的回调函数");
+		    		}
+				})
+			})
+			$("#confirmBtn").on("click",function(){
+				$(this).dialog({
+					dialogHeader:true,
+					dialogType:"confirm",
+					dialogHeaderText:"警告",
+					message:"确定要删除此购物车吗？",
+					confirmTrueCall:function(value){
+		    			console.log(value);
+		    			alert("点击按钮的确认按钮后的回调函数");
+
+		    		},
+					confirmFalseCall:function(value){
+		    			console.log(value);
+		    			alert("点击按钮的取消按钮后的回调函数");
+		    		}		
+				})
+			})
+			$("#promptBtn").on("click",function(){
+				$(this).dialog({
+					dialogType:"prompt",
+					promptTrueCall:function(value){
+		    			var values;
+		    			if(value){
+		    				values=value;
+		    			}else{
+		    				value="(空)";
+		    			}
+		    			alert("您输入的值为:"+value);
+		    		}
+				})
+			})
+	})
+	;(function($,window,document,undefined){
+		// dialog对话框
+		$.fn.dialog=function(options){
+			function Dialog(options){
+				this.defalut={
+					width:250,//dialog[width]
+					height:200,//dialog[heidht]
+					dialogHeader:false,//是否显示头部
+					dialogHeaderText:"温馨提示！",//头部的文字
+					dialogType:"confirm",//[alert,confirm,prompt]
+					message:"您确定要删除吗？",//内容区显示的文字
+					alertBtn:"确定",//alertBtn的文字
+					confirmTrueBtn:"确定",//confirmTrueBtn的文字
+					confirmFalseBtn:"取消",//confirmFalseBtn的文字
+					promptTrueBtn:"确定",//promptTrueBtn的文字
+					promptFalseBtn:"取消",//promptFalseBtn的文字
+					alertCall:null,//点击alertBtn是的回调函数
+					confirmTrueCall:null,//confirmTrueBtn的回调函数
+					confirmFalseCall:null,//confirmFalseBtnd的回调函数
+					promptTrueCall:null,//promptTrueBtn的回调函数
+					promptFalseCall:null,//promptFalseBtnd的回调函数
+				}
+				this.o=$.extend({},this.defalut,options);
+				this.handlers={};
+				this.init(options);
+			};
+			Dialog.prototype={
+				init:function(options){// 初始化入口
+					this.bluid();
+					this.handler();
+				},
+				bluid:function(){//接口：添加dom节点
+					var $this=this,
+						o= this.o,
+						mask=$this.mask=$('<div class="dialog-mask"></div>'),
+						dialog=$this.dialog=$('<div class="dialog"></div>'),
+						header=$this.dialogHeader=$('<h2 class="dialog-header"></h2>'),
+						content=$this.dialogContent=$('<div class="dialog-content"></div>'),
+						btnGroup=$this.btnGroup=$('<div class="dialog-btn-group"></div>');
+					$this.animates(dialog,"show");
+					if(o.dialogHeader){
+						dialog.append(header.html(o.dialogHeaderText));
+					}
+					
+					switch(o.dialogType) {
+						case "alert":
+							content.append(o.message);
+							btnGroup.append('<a href="javascript:;" class="link-flex btn-red alertBtn">'+o.alertBtn+'</a>')
+							break;
+						case "confirm":
+							content.append(o.message);
+							btnGroup.append('<a href="javascript:;" class="link-flex confirmTrueBtn" data-value="true">'+o.confirmTrueBtn+'</a><a href="javascript:;" class="link-flex btn-red confirmFalseBtn" data-value="false">'+o.confirmFalseBtn+'</a>');
+							break;
+						case "prompt":
+							content.append('<input type="text" value="" class="prompt-input" placeholder='+o.message+'>');
+							btnGroup.append('<a href="javascript:;" class="link-flex promptTrueBtn">'+o.promptTrueBtn+'</a><a href="javascript:;" class="link-flex btn-red promptFalseBtn" >'+o.promptFalseBtn+'</a>');
+							break;
+					}
+					dialog.append(content);
+					dialog.append(btnGroup);
+					$("body").append(mask.append(dialog));
+				},
+				animates:function(ele,type){//接口,显示与移除的动画
+					var $this=this;
+					var o=this.o;
+					switch(type) {
+						case "show":
+		    				ele.css({
+		    					"width":o.width,
+		    					"opacity":0,
+		    					"position":"absolute",
+		    					"top":"-50%",
+		    					"left":"50%",
+		    				}).animate({
+								"opacity":1,
+								"top":"50%",
+								"left":"50%",
+		    				},500)
+							break;
+						case "remove":
+							ele.animate({
+								"opacity":0,
+		    				},500,function(){
+		    					ele.parent().remove();
+		    				})
+							break;
+					}
+				},
+				handler:function(){//接口：监听事件
+					var $this=this;
+					var o= this.o;
+					$this.mask.delegate(".alertBtn","click",function(){
+						$this.trigger("alert");
+						$this.destory();
+					})
+					$this.mask.delegate(".confirmTrueBtn","click",function(){
+						var value=$(this).data("value");
+						$this.trigger("confirmTrueBtn",value);
+						$this.destory();
+					})
+					$this.mask.delegate(".confirmFalseBtn","click",function(){
+						var value=$(this).data("value");
+						$this.trigger("confirmFalseBtn",value);
+						$this.destory();
+					})
+					$this.mask.delegate(".promptTrueBtn","click",function(){
+						var value=$(".dialog-content",$this.mask).find("input").val();
+						$this.trigger("promptTrueBtn",value);
+						$this.destory();
+					})
+					$this.mask.delegate(".promptFalseBtn","click",function(){
+						$this.trigger("promptFalseBtn");
+						$this.destory();
+					})
+					if(o.alertCall){
+						$this.on("alert",o.alertCall)
+					}
+					if(o.confirmTrueCall){
+						$this.on("confirmTrueBtn",o.confirmTrueCall)
+					}
+					if(o.confirmFalseCall){
+						$this.on("confirmFalseBtn",o.confirmFalseCall)
+					}
+					if(o.promptTrueCall){
+						$this.on("promptTrueBtn",o.promptTrueCall)
+					}
+					if(o.promptFalseCall){
+						$this.on("promptFalseBtn",o.promptFalseCall)
+					}
+				},
+				on:function(type,handlers){//接口:事件绑定
+					this.handlers[type]=[];
+					if(typeof this.handlers[type]=="undefined"){
+						this.handlers[type]=[];
+					}
+					this.handlers[type].push(handlers);
+				},
+				trigger:function(type,data){//接口:事件触发
+					if(this.handlers[type] instanceof Array){
+						var handlers=this.handlers[type];
+						for(var i=0;i<handlers.length;i++){
+							handlers[i](data);
+						}
+					}
+				},
+				destory:function(){//销毁dialog
+					this.animates($('.dialog',this.mask),"remove")
+				}
+			}
+			return this.each(function(){
+				new Dialog(options);
+			});
+		}
+	})(jQuery,window,document)
+</script>
+</body>
+</html>
